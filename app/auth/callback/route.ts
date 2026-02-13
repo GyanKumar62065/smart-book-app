@@ -15,8 +15,10 @@ export async function GET(request: Request) {
             let baseUrl = origin;
 
             if (process.env.NEXT_PUBLIC_SITE_URL) {
+                console.log("Going to Vercel route : ", process.env.NEXT_PUBLIC_SITE_URL)
                 baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
             } else if (!isLocalEnv && forwardedHost) {
+                console.log("Going to Network route : ", `https://${forwardedHost}`)
                 baseUrl = `https://${forwardedHost}`;
             }
 
