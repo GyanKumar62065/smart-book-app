@@ -10,16 +10,11 @@ export async function GET(request: Request) {
         const supabase = await createClient();
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-            const forwardedHost = request.headers.get("x-forwarded-host");
             const isLocalEnv = process.env.NODE_ENV === "development";
             let baseUrl = origin;
 
-            if (process.env.NEXT_PUBLIC_SITE_URL) {
-                console.log("Going to Vercel route : ", process.env.NEXT_PUBLIC_SITE_URL)
+            if (process.env.NEXT_PUBLIC_SITE_URL && !isLocalEnv) {
                 baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
-            } else if (!isLocalEnv && forwardedHost) {
-                console.log("Going to Network route : ", `https://${forwardedHost}`)
-                baseUrl = `https://${forwardedHost}`;
             }
 
             // Always default to /dashboard if next is missing or root

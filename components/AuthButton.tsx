@@ -9,10 +9,7 @@ export default function AuthButton({ mode }: { mode: "signin" | "signout" }) {
         await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                // redirectTo: `${window.location.origin}/auth/callback`,
-                // Use the site URL from env for production, otherwise use localhost
-                redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-
+                redirectTo: `${window.location.origin}/auth/callback`,
             },
         });
     };
