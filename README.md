@@ -26,6 +26,8 @@ A beautiful, real-time bookmark manager built with **Next.js 15** (App Router), 
 | Realtime     | Supabase Realtime        |
 | Styling      | Tailwind CSS 4           |
 | Deployment   | Vercel                   |
+| State Mgmt   | Finite State Machines (FSM) |
+| Language     | TypeScript               |
 
 ## 📦 Setup
 
@@ -109,6 +111,43 @@ Open [http://localhost:3000](http://localhost:3000).
 
 **Solution**: Implemented Next.js middleware that runs on every request, creating a Supabase server client that transparently refreshes the session and updates cookies. This ensures the user stays logged in as long as their refresh token is valid.
 
+## 🧠 State Management Architecture
+
+This project uses **Finite State Machines (FSM)** to handle complex UI logic predictably. Instead of scattered `useState` booleans (e.g., `isLoading`, `isError`, `isSuccess`), we define explicit states and transitions.
+
+### Core State Machines
+
+1.  **Bookmark Form Machine**: Handles the creation flow.
+    *   **States**: `idle` → `validating` → `submitting` → `success` / `error`
+    *   **Events**: `SUBMIT`, `VALIDATION_ERROR`, `SUBMIT_SUCCESS`, etc.
+
+2.  **Bookmark Delete Machine**: Manages the deletion confirmation flow.
+    *   **States**: `idle` → `confirming` → `deleting` → `success` / `error`
+    *   **Safeguard**: Prevents accidental deletions by requiring a confirmation step.
+
+3.  **Bookmark List Machine**: Handles optimistic updates and real-time syncing.
+    *   **Optimistic UI**: The list updates immediately on user action, then syncs with the server.
+
+### Concept: Reducer Pattern
+
+We use pure reducer functions (located in `lib/machines.ts`) to manage state transitions. This makes the logic:
+
+*   **Testable**: Reducers are just functions that take `(state, action)` and return `nextState`.
+*   **Predictable**: Impossible states (e.g., `loading` AND `success` at the same time) are prevented by design.
+*   **Type-Safe**: All states and actions are strongly typed in `types/index.ts`.
+
+```mermaid
+stateDiagram-v2
+    [*] --> idle
+    idle --> validating: SUBMIT
+    validating --> submitting: SUBMIT_START
+    validating --> error: VALIDATION_ERROR
+    submitting --> idle: SUBMIT_SUCCESS
+    submitting --> error: SUBMIT_ERROR
+    error --> idle: RESET
+    error --> validating: SUBMIT
+```
+
 ## 📁 Project Structure
 
 ```
@@ -127,8 +166,12 @@ Open [http://localhost:3000](http://localhost:3000).
 │   ├── BookmarkCard.tsx        # Individual bookmark card
 │   └── BookmarkList.tsx        # Real-time bookmark list
 ├── lib/
+│   ├── machines.ts             # State machine reducers
+│   ├── utils.ts                # Helper functions
 │   ├── supabase-browser.ts     # Browser Supabase client
 │   └── supabase-server.ts      # Server Supabase client
+├── types/
+│   └── index.ts                # Domain models & State definitions
 ├── middleware.ts               # Auth middleware
 └── supabase-schema.sql         # Database schema
 ```
@@ -136,3 +179,5 @@ Open [http://localhost:3000](http://localhost:3000).
 ## 📜 License
 
 MIT
+
+<!-- Trigger Vercel Build -->
