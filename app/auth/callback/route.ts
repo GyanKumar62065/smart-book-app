@@ -14,7 +14,12 @@ export async function GET(request: Request) {
             let baseUrl = origin;
 
             if (process.env.NEXT_PUBLIC_SITE_URL && !isLocalEnv) {
-                baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+                // Determine if the site URL is localhost, if so we should ignore it in production
+                // This is a safety check for misconfigured environments
+                const isSiteUrlLocalhost = process.env.NEXT_PUBLIC_SITE_URL.includes("localhost");
+                if (!isSiteUrlLocalhost) {
+                    baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+                }
             }
 
             // Always default to /dashboard if next is missing or root
