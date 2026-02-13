@@ -1,0 +1,33 @@
+-- SmartMark Database Schema
+-- Run this SQL in your Supabase SQL Editor (Dashboard → SQL Editor → New query)
+
+-- 1. Create the bookmarks table
+create table public.bookmarks (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  title text not null,
+  url text not null,
+  created_at timestamptz default now() not null
+);
+
+-- 2. Enable Row Level Security
+alter table public.bookmarks enable row level security;
+
+-- 3. RLS Policies — each user can only access their own bookmarks
+create policy "Users can view own bookmarks"
+  on public.bookmarks for select
+  using (auth.uid() = user_id);
+
+create policy "Users can insert own bookmarks"
+  on public.bookmarks for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can delete own bookmarks"
+  on public.bookmarks for delete
+  using (auth.uid() = user_id);
+
+-- 4. Enable Realtime for the bookmarks table
+alter publication supabase_realtime add table public.bookmarks;
+
+-- 5. Create an index for faster queries
+create index bookmarks_user_id_idx on public.bookmarks(user_id);
