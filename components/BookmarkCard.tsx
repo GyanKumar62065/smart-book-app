@@ -2,15 +2,14 @@
 
 import { createClient } from "@/lib/supabase-browser";
 import { useState } from "react";
+import { Bookmark } from "@/types";
 
-interface Bookmark {
-    id: string;
-    title: string;
-    url: string;
-    created_at: string;
+interface BookmarkCardProps {
+    bookmark: Bookmark;
+    onDelete?: (id: string) => void;
 }
 
-export default function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
+export default function BookmarkCard({ bookmark, onDelete }: BookmarkCardProps) {
     const supabase = createClient();
     const [isDeleting, setIsDeleting] = useState(false);
 

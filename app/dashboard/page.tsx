@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import AuthButton from "@/components/AuthButton";
-import AddBookmark from "@/components/AddBookmark";
-import BookmarkList from "@/components/BookmarkList";
+import DashboardClient from "@/components/DashboardClient";
 
 export const dynamic = "force-dynamic";
 
@@ -65,29 +64,7 @@ export default async function Dashboard() {
 
             {/* Main content */}
             <main className="relative z-10 max-w-4xl mx-auto px-6 py-8">
-                {/* Add bookmark section */}
-                <div className="mb-8">
-                    <h2 className="text-white/60 text-sm font-medium uppercase tracking-wider mb-4">
-                        Add New Bookmark
-                    </h2>
-                    <AddBookmark userId={user.id} />
-                </div>
-
-                {/* Bookmarks list */}
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-white/60 text-sm font-medium uppercase tracking-wider">
-                            Your Bookmarks
-                        </h2>
-                        <span className="text-white/25 text-sm">
-                            {bookmarks?.length || 0} saved
-                        </span>
-                    </div>
-                    <BookmarkList
-                        initialBookmarks={bookmarks || []}
-                        userId={user.id}
-                    />
-                </div>
+                <DashboardClient initialBookmarks={bookmarks || []} userId={user.id} />
             </main>
         </div>
     );

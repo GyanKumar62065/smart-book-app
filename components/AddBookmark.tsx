@@ -3,7 +3,14 @@
 import { createClient } from "@/lib/supabase-browser";
 import { useState } from "react";
 
-export default function AddBookmark({ userId }: { userId: string }) {
+import { Bookmark } from "@/types";
+
+interface AddBookmarkProps {
+    userId: string;
+    onAdd?: (bookmark: Bookmark) => void;
+}
+
+export default function AddBookmark({ userId, onAdd }: AddBookmarkProps) {
     const supabase = createClient();
     const [title, setTitle] = useState("");
     const [url, setUrl] = useState("");
@@ -27,16 +34,24 @@ export default function AddBookmark({ userId }: { userId: string }) {
 
         setIsAdding(true);
 
-        const { error: insertError } = await supabase.from("bookmarks").insert({
-            user_id: userId,
-            title: title.trim(),
-            url: finalUrl,
-        });
+        const { error: insertError, data } = await supabase
+            .from("bookmarks")
+            .insert({
+                user_id: userId,
+                title: title.trim(),
+                url: finalUrl,
+            })
+            .select()
+            .single();
 
         if (insertError) {
             setError(insertError.message);
             setIsAdding(false);
             return;
+        }
+
+        if (onAdd && data) {
+            onAdd(data);
         }
 
         setTitle("");

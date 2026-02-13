@@ -1,67 +1,15 @@
-"use client";
-
-import { createClient } from "@/lib/supabase-browser";
-import { useEffect, useState } from "react";
+import { Bookmark } from "@/types";
 import BookmarkCard from "./BookmarkCard";
 
-interface Bookmark {
-    id: string;
-    user_id: string;
-    title: string;
-    url: string;
-    created_at: string;
+interface BookmarkListProps {
+    bookmarks: Bookmark[];
+    onDelete: (id: string) => void;
 }
 
 export default function BookmarkList({
-    initialBookmarks,
-    userId,
-}: {
-    initialBookmarks: Bookmark[];
-    userId: string;
-}) {
-    const [bookmarks, setBookmarks] = useState<Bookmark[]>(initialBookmarks);
-    const supabase = createClient();
-
-    useEffect(() => {
-        // Subscribe to realtime changes for this user's bookmarks
-        const channel = supabase
-            .channel("bookmarks-realtime")
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "bookmarks",
-                    filter: `user_id=eq.${userId}`,
-                },
-                (payload) => {
-                    const newBookmark = payload.new as Bookmark;
-                    setBookmarks((prev) => {
-                        // Avoid duplicates
-                        if (prev.find((b) => b.id === newBookmark.id)) return prev;
-                        return [newBookmark, ...prev];
-                    });
-                }
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "DELETE",
-                    schema: "public",
-                    table: "bookmarks",
-                },
-                (payload) => {
-                    const deletedId = payload.old.id;
-                    setBookmarks((prev) => prev.filter((b) => b.id !== deletedId));
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [supabase, userId]);
-
+    bookmarks,
+    onDelete,
+}: BookmarkListProps) {
     if (bookmarks.length === 0) {
         return (
             <div className="text-center py-16">
@@ -79,7 +27,11 @@ export default function BookmarkList({
     return (
         <div className="grid gap-3">
             {bookmarks.map((bookmark) => (
-                <BookmarkCard key={bookmark.id} bookmark={bookmark} />
+                <BookmarkCard
+                    key={bookmark.id}
+                    bookmark={bookmark}
+                    onDelete={onDelete}
+                />
             ))}
         </div>
     );
