@@ -26,6 +26,13 @@ export default function DashboardClient({
         setBookmarks((prev) => prev.filter((b) => b.id !== id));
     };
 
+    // Optimistic edit
+    const handleEdit = (updatedBookmark: Bookmark) => {
+        setBookmarks((prev) =>
+            prev.map((b) => (b.id === updatedBookmark.id ? updatedBookmark : b))
+        );
+    };
+
     useEffect(() => {
         // Subscribe to realtime changes to keep multiple tabs in sync
         const channel = supabase
@@ -44,6 +51,23 @@ export default function DashboardClient({
                         if (prev.find((b) => b.id === newBookmark.id)) return prev;
                         return [newBookmark, ...prev];
                     });
+                }
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "UPDATE",
+                    schema: "public",
+                    table: "bookmarks",
+                    filter: `user_id=eq.${userId}`,
+                },
+                (payload) => {
+                    const updatedBookmark = payload.new as Bookmark;
+                    setBookmarks((prev) =>
+                        prev.map((b) =>
+                            b.id === updatedBookmark.id ? updatedBookmark : b
+                        )
+                    );
                 }
             )
             .on(
@@ -85,7 +109,7 @@ export default function DashboardClient({
                         {bookmarks.length} saved
                     </span>
                 </div>
-                <BookmarkList bookmarks={bookmarks} onDelete={handleDelete} />
+                <BookmarkList bookmarks={bookmarks} onDelete={handleDelete} onEdit={handleEdit} />
             </div>
         </>
     );

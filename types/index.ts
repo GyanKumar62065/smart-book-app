@@ -90,5 +90,36 @@ export type BookmarkListState =
 export type BookmarkListAction =
     | { type: "INSERT"; bookmark: Bookmark }
     | { type: "DELETE"; bookmarkId: string }
+    | { type: "UPDATE"; bookmark: Bookmark }
     | { type: "SYNC_ERROR"; message: string }
     | { type: "RESET_ERROR" };
+
+// =============================================================================
+// Bookmark Edit State Machine
+// =============================================================================
+
+/**
+ * State machine for editing a bookmark.
+ *
+ * Transitions:
+ *   idle  ──EDIT──▶  editing
+ *   editing ──SAVE──▶  saving
+ *   editing ──CANCEL──▶  idle
+ *   saving ──SAVE_SUCCESS──▶  idle
+ *   saving ──SAVE_ERROR──▶  error
+ *   error ──RESET──▶  idle
+ *   error ──EDIT──▶  editing  (retry)
+ */
+export type BookmarkEditState =
+    | { status: "idle" }
+    | { status: "editing" }
+    | { status: "saving" }
+    | { status: "error"; message: string };
+
+export type BookmarkEditAction =
+    | { type: "EDIT" }
+    | { type: "SAVE" }
+    | { type: "CANCEL" }
+    | { type: "SAVE_SUCCESS" }
+    | { type: "SAVE_ERROR"; message: string }
+    | { type: "RESET" };

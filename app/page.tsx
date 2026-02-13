@@ -1,8 +1,10 @@
 import AuthButton from "@/components/AuthButton";
+import AuthListener from "@/components/AuthListener";
 
 export default function Home() {
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <AuthListener />
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[128px] animate-float" />

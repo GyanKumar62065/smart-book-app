@@ -22,6 +22,11 @@ create policy "Users can insert own bookmarks"
   on public.bookmarks for insert
   with check (auth.uid() = user_id);
 
+create policy "Users can update own bookmarks"
+  on public.bookmarks for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 create policy "Users can delete own bookmarks"
   on public.bookmarks for delete
   using (auth.uid() = user_id);

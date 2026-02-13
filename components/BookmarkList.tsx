@@ -4,11 +4,13 @@ import BookmarkCard from "./BookmarkCard";
 interface BookmarkListProps {
     bookmarks: Bookmark[];
     onDelete: (id: string) => void;
+    onEdit: (bookmark: Bookmark) => void;
 }
 
 export default function BookmarkList({
     bookmarks,
     onDelete,
+    onEdit,
 }: BookmarkListProps) {
     if (bookmarks.length === 0) {
         return (
@@ -31,6 +33,7 @@ export default function BookmarkList({
                     key={bookmark.id}
                     bookmark={bookmark}
                     onDelete={onDelete}
+                    onEdit={onEdit}
                 />
             ))}
         </div>
