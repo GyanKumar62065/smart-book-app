@@ -18,7 +18,11 @@ export async function GET(request: Request) {
                 baseUrl = `https://${forwardedHost}`;
             }
 
-            const redirectUrl = new URL(next, baseUrl);
+            // Always default to /dashboard if next is missing or root
+            const targetPath = (next && next !== "/") ? next : "/dashboard";
+            const redirectUrl = new URL(targetPath, baseUrl);
+
+            // Explicitly remove code and any other auth params
             redirectUrl.searchParams.delete("code");
 
             return NextResponse.redirect(redirectUrl);
