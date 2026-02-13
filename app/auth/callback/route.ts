@@ -14,9 +14,11 @@ export async function GET(request: Request) {
             const isLocalEnv = process.env.NODE_ENV === "development";
             let baseUrl = origin;
 
-            // if (!isLocalEnv && forwardedHost) {
-            //     baseUrl = `https://${forwardedHost}`;
-            // }
+            if (process.env.NEXT_PUBLIC_SITE_URL) {
+                baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+            } else if (!isLocalEnv && forwardedHost) {
+                baseUrl = `https://${forwardedHost}`;
+            }
 
             // Always default to /dashboard if next is missing or root
             const targetPath = (next && next !== "/") ? next : "/dashboard";
